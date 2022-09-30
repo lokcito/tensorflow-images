@@ -7,7 +7,7 @@ const App: Component = () => {
     className: string;
     probability: number;
   }[];
-  const [result, setResult] = createSignal<Data>();
+  const [result, setResult] = createSignal<Data>([]);
   const [load, setLoad] = createSignal(false);
 
   let randomString = () => {

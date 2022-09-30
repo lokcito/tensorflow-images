@@ -3,7 +3,11 @@ import * as mobilenet from "@tensorflow-models/mobilenet";
 import "@tensorflow/tfjs";
 
 const App: Component = () => {
-  const [result, setResult] = createSignal([]);
+  type Data = {
+    className: string;
+    probability: number;
+  }[];
+  const [result, setResult] = createSignal<Data>();
   const [load, setLoad] = createSignal(false);
 
   let randomString = () => {
@@ -18,7 +22,10 @@ const App: Component = () => {
     var source = 'https://i.imgur.com/' + text + '.jpg';
     
     var image = new Image();
-    const img = document.getElementById("img");
+    let img = document.getElementById("img") as HTMLImageElement | null;
+    if ( img === null ) {
+      return;
+    }
     img.src = source;
   }
 
@@ -35,16 +42,21 @@ const App: Component = () => {
                 <button class="bg-indigo-500 text-white rounded px-10"
                   onClick={async () => {
                     setLoad(!load());
-                    const img = document.getElementById("img");
+                    const img = document.getElementById("img") as HTMLImageElement | null;
+                    if ( img === null ) {
+                      return;
+                    }
                     // Load the model.
                     const model = await mobilenet.load();
                     // Classify the image.
                     const predictions = await model.classify(img);
-
-                    //console.log('Predictions: ');
-                    //console.log(predictions);
+                    
                     setLoad(!load());
-                    setResult(predictions);
+                    if ( predictions ) {
+                      setResult(predictions);
+                    } else {
+                      setResult([]);
+                    }
                   }}
                 >
                   Predecir
@@ -67,7 +79,7 @@ const App: Component = () => {
               {load()?<h2 class="text-center text-xl">Analizando</h2>:<>
               <h2 class="text-center text-xl">Prediccion</h2>
               <div>
-                { result().map(e => <li>{e.className}</li>) }
+                { result()!.map(e => <li>{e.className}</li>) }
               </div></>}
             </div>
           </div>
